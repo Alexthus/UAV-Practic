@@ -148,27 +148,17 @@ class QuadCopterController:
         u = self._mixer(base_rpm, cmd_roll, cmd_pitch, cmd_yaw)
         return u
 
-    def _mixer(self, cmd_trust, cmd_roll, cmd_pitch, cmd_yaw) -> np.ndarray:
+    def _mixer(self, cmd_thrust, cmd_roll, cmd_pitch, cmd_yaw) -> np.ndarray:
 
-        # Алгоритм смешивания команд для квадрокоптера с "X" - образной конфигурацией
-        # u1, u2, u3, u4 - команды на двигатели 1, 2, 3, 4 соответственно
-        # Обычно: u1 - передний левый, u2 - передний правый, u3 - задний правый, u4 - задний левый
         # Команды: thrust (общая тяга), roll (крен), pitch (тангаж), yaw (рыскание)
-
         # Смешивание команд
-        u_1 = cmd_trust + cmd_pitch + cmd_roll - cmd_yaw
-        u_2 = cmd_trust + cmd_pitch - cmd_roll + cmd_yaw
-        u_3 = cmd_trust - cmd_pitch - cmd_roll - cmd_yaw
-        u_4 = cmd_trust - cmd_pitch + cmd_roll + cmd_yaw
+        u0 = cmd_thrust - cmd_pitch - cmd_yaw   # front
+        u1 = cmd_thrust - cmd_roll  + cmd_yaw   # right
+        u2 = cmd_thrust + cmd_pitch - cmd_yaw   # back
+        u3 = cmd_thrust + cmd_roll  + cmd_yaw   # left
 
-        # Ограничение команд
-        max_command = 3000.0  # Максимальная команда
-        u_1 = np.clip(u_1, 0, max_command)
-        u_2 = np.clip(u_2, 0, max_command)
-        u_3 = np.clip(u_3, 0, max_command)
-        u_4 = np.clip(u_4, 0, max_command)
-
-        return np.array([u_1, u_2, u_3, u_4])
+        max_cmd = 3000.0
+        return np.clip([u0, u1, u2, u3], 0, max_cmd)
 
     def _rotation2d(self, theta):
         return np.array([[np.cos(theta), -np.sin(theta)], 
