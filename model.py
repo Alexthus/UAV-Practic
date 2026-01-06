@@ -77,11 +77,11 @@ class QuadCopterModel:
         #   Двигатель 2: -X (по часовой)
         #   Двигатель 3: -Y (против часовой)
 	
-		M_x = self._arm_length * self._trust_coef * (u[0] ** 2 - u[2] ** 2)           # Roll moment
-		M_y = self._arm_length * self._trust_coef * (u[3] ** 2 - u[1] ** 2)           # Pitch moment
+		M_roll  = self._arm_length * self._trust_coef * (u[3]**2 - u[1]**2)           # Roll moment
+		M_pitch = self._arm_length * self._trust_coef * (u[0]**2 - u[2]**2)           # Pitch moment
 		M_z = self._drag_coef * (u[3] ** 2 + u[1] ** 2 - u[0] ** 2 - u[2] ** 2)  # Yaw moment
 		
-		moments = np.array([[M_x], [M_y], [M_z]]) # shape (3,1)
+		moments = np.array([[M_roll], [M_pitch], [M_z]]) # shape (3,1)
 
         # Угловая скорость в связанной СК
 		omega = self.state_vector[9:12]  # shape: (3,1)
